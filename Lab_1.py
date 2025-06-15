@@ -1,19 +1,24 @@
 import requests
 from bs4 import BeautifulSoup
 
-url = "https://omgtu.ru/general_information/the-structure/the-department-of-university.php"
-response = requests.get(url)
+def get_departments():
+    url = 'https://omgtu.ru/general_information/the-structure/the-department-of-university.php'
+    response = requests.get(url)
+    soup = BeautifulSoup(response.text, 'html.parser')
 
-if response.status_code == 200:
-    soup = BeautifulSoup(response.content, "html.parser")
+    department = []
 
-    departments = soup.find_all("a")[1:]
-    departments_list = [department.text for department in departments]
+    for link in soup.find_all('p'):
+        text = link.get_text(strip=True)
+        if text:
+            department.append(text)
 
-    with open("omgtu_departments.txt", "w", encoding="utf-8") as file:
-        for department in departments_list:
-            file.write(department + "\n")
+    with open('omgtu_departments.txt', 'w', encoding='utf-8') as file:
+        for dept in department:
+            file.write(dept + '\n')
 
-    print(f"Список кафедр успешно записан в файл omgtu_departments.txt")
-else:
-    print("Ошибка при запросе к странице")
+    print(f'Сохранено {len(department)} кафедр в файл omgtu_departments.txt')
+
+
+if __name__ == '__main__':
+    get_departments()
